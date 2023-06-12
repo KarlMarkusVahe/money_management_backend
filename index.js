@@ -146,6 +146,7 @@ app.delete('/sessions', authorizeRequest, (req, res) => {
 
 // Array to store expenses
 let expenses = [];
+let incomes = [];
 
 // Route to handle expense creation
 app.post('/expenses', (req, res) => {
@@ -155,9 +156,20 @@ app.post('/expenses', (req, res) => {
     res.status(201).json(expense);
 });
 
+app.post('/incomes', (req, res) => {
+    const { name, amount } = req.body;
+    const income = { name, amount };
+    incomes.push(income);
+    res.status(201).json(income)
+});
+
 // Route to handle expense retrieval
 app.get('/expenses', (req, res) => {
     res.json(expenses);
+});
+
+app.get('/incomes', (req, res) => {
+    res.json(incomes);
 });
 
 app.listen(port, () => {
