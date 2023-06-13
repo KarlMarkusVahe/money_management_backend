@@ -77,7 +77,8 @@ paths:
                   value: Account not found
           description: The session existed but the associated user account does not exist any more.
       security:
-        - Bearer: [ ]
+        -
+          Bearer: []
       operationId: createSession
       summary: Create a Session
       description: Creates a new instance of a `Session`.
@@ -99,9 +100,113 @@ paths:
                   value: Invalid token
           description: Unauthorized
       security:
-        - Bearer: [ ]
+        -
+          Bearer: []
       summary: Delete a Session
       description: Deletes `Session` of which ID is specified in the Authorization header
+  /expenses:
+    summary: Path used to manage list of expenses
+    description: >-
+      The REST endpoint/path used to list and create zero or more `Expenses` entities.  This path
+      contains a `GET` and `POST` operation to perform the list and create tasks, respectively.
+    get:
+      tags:
+        - /expenses
+      responses:
+        '200':
+          description: Response Succesful
+      security:
+        -
+          Bearer: []
+      summary: Show expenses
+      description: Show a list of expenses
+    post:
+      requestBody:
+        description: A new `Expenses` to be created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Expenses'
+        required: true
+      tags:
+        - /expenses
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expenses'
+          description: Succesful Response
+        '400':
+          content:
+            text/xml:
+              examples:
+                Name is required:
+                  value:
+                    name: ''
+                    amount: '1000'
+                Amount is required:
+                  value:
+                    name: trans
+                    amount: '0'
+          description: Required field is missing
+      security:
+        -
+          Bearer: []
+      operationId: createExpenses
+      summary: Create an expense
+      description: Creates a new instance of a `Expenses`.
+  /incomes:
+    summary: Path used to manage list of incomes
+    description: >-
+      The REST endpoint/path used to list and create zero or more `Incomes` entities.  This path
+      contains a `GET` and `POST` operation to perform the list and create tasks, respectively.
+    get:
+      tags:
+        - /incomes
+      responses:
+        '200':
+          description: Response Succesful
+      security:
+        -
+          Bearer: []
+      summary: Show incomes
+      description: Show a list of incomes
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Incomes'
+        required: true
+      tags:
+        - /incomes
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incomes'
+          description: Response Succesful
+        '400':
+          content:
+            text/xml:
+              examples:
+                Name is required:
+                  value:
+                    name: ''
+                    amount: '1000'
+                amount is required:
+                  value:
+                    name: job
+                    amount: '0'
+          description: Required field is missing
+      security:
+        -
+          Bearer: []
+      operationId: createIncome
+      summary: Create an income
+      description: Creates a new instance of a `Incomes`.
 components:
   schemas:
     Account:
@@ -141,12 +246,45 @@ components:
       example:
         email: a
         password: a
+    Expenses:
+      description: ''
+      required:
+        - name
+        - amount
+      type: object
+      properties:
+        name:
+          description: ''
+          type: string
+        amount:
+          description: ''
+          type: number
+      example:
+        name: trans
+        amount: '1000'
+    Incomes:
+      title: Root Type for Income
+      description: ''
+      required:
+        - amount
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+        amount:
+          type: number
+      example:
+        name: job
+        amount: '1000'
   securitySchemes:
     Bearer:
       scheme: bearer
       type: http
 tags:
-  - name: /accounts
+  -
+    name: /accounts
     description: ''
-  - name: /sessions
+  -
+    name: /sessions
     description: ''

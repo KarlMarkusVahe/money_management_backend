@@ -146,18 +146,35 @@ app.delete('/sessions', authorizeRequest, (req, res) => {
 
 // Array to store expenses
 let expenses = [];
+// Array to store income
+let incomes = [];
 
-// Route to handle expense creation
+// Route to handle expense, income creation
 app.post('/expenses', (req, res) => {
     const { name, amount } = req.body;
+    if (!req.body.amount) return res.status(400).send('Amount is required');
+    if (!req.body.name) return res.status(400).send('Name is required');
     const expense = { name, amount };
     expenses.push(expense);
     res.status(201).json(expense);
 });
 
-// Route to handle expense retrieval
+app.post('/incomes', (req, res) => {
+    const { name, amount } = req.body;
+    if (!req.body.amount) return res.status(400).send('Amount is required');
+    if (!req.body.name) return res.status(400).send('Name is required');
+    const income = { name, amount };
+    incomes.push(income);
+    res.status(201).json(income)
+});
+
+// Route to handle expense and income retrieval
 app.get('/expenses', (req, res) => {
     res.json(expenses);
+});
+
+app.get('/incomes', (req, res) => {
+    res.json(incomes);
 });
 
 app.listen(port, () => {
