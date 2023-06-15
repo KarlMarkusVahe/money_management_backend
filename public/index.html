@@ -75,6 +75,9 @@
         <ul>
             <li v-for="income in incomes" :key="income.id">
                 {{ income.name }}: ${{ income.amount }}
+                <button type="button" class="btn btn-secondary btn-sm" @click="showModal('editIncomeModal', income)">
+                    Edit
+                </button>
             </li>
         </ul>
     </div>
@@ -139,6 +142,35 @@
         </div>
     </div>
 
+    <!-- Edit Income Modal -->
+    <div class="modal fade" id="editIncomeModal" tabindex="-1" aria-labelledby="editIncomeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editIncomeModalLabel">Edit Income</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 row">
+                        <label for="editIncomeName" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="editIncomeName" v-model="editIncomeName">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="editIncomeAmount" class="col-sm-2 col-form-label">Amount</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="editIncomeAmount" v-model="editIncomeAmount">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="updateIncome(editingIncome)">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Sign In Modal -->
     <div class="modal fade" id="signInModal" tabindex="-1" aria-labelledby="signInModalLabel" aria-hidden="true">
@@ -195,6 +227,9 @@
                 editExpenseName: '',
                 editExpenseAmount: 0,
                 editingExpense: null,
+                editIncomeName: '',
+                editIncomeAmount: 0,
+                editingIncome: null,
             };
         },
         mounted() {
@@ -252,7 +287,7 @@
                         this.incomes = [];
                     });
             },
-            showModal(modalId, expense) {
+            showModal(modalId, expense, income) {
                 this.modalHandler = new bootstrap.Modal(document.getElementById(modalId));
                 this.modalHandler.show();
 
@@ -260,6 +295,10 @@
                     this.editingExpense = expense;
                     this.editExpenseName = expense.name;
                     this.editExpenseAmount = expense.amount;
+                } else if (income) {
+                    this.editingIncome = income;
+                    this.editIncomeName = income.name;
+                    this.editIncomeAmount = income.amount;
                 }
             },
             addExpense() {
@@ -311,6 +350,27 @@
                         // Reset the form fields and close the modal
                         this.editExpenseName = '';
                         this.editExpenseAmount = 0;
+                        this.modalHandler.hide();
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.response.data.message}`);
+                    });
+            },
+            updateIncome(income) {
+                this.send('PUT', `/incomes/${income.id}`, {
+                    name: this.editIncomeName,
+                    amount: this.editIncomeAmount
+                })
+                    .then(() => {
+                        // Update the income locally
+                        const index = this.incomes.findIndex(item => item.id === income.id);
+                        if (index !== -1) {
+                            this.incomes[index].name = this.editIncomeName;
+                            this.incomes[index].amount = this.editIncomeAmount;
+                        }
+                        // Reset the form fields and close the modal
+                        this.editIncomeName = '';
+                        this.editIncomeAmount = 0;
                         this.modalHandler.hide();
                     })
                     .catch(error => {

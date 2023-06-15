@@ -14,6 +14,7 @@ const port = process.env.PORT || 3000;
 const accounts = [];
 let sessions = [];
 let expenses = []; // Define the expenses variable
+let incomes = []; // Define the incomes variable
 
 // Serve static files
 app.use(express.static('public'));
@@ -157,6 +158,16 @@ function readExpensesFromFile() {
     }
 }
 
+function readIncomesFromFile() {
+    try {
+        const fileData = fs.readFileSync('incomes.json', 'utf8');
+        return JSON.parse(fileData);
+    } catch (error) {
+        console.error('Failed to read incomes:', error);
+        return [];
+    }
+}
+
 // Function to save expenses to file
 function saveExpensesToFile() {
     try {
@@ -166,12 +177,20 @@ function saveExpensesToFile() {
     }
 }
 
+function saveIncomesToFile() {
+    try {
+        fs.writeFileSync('incomes.json', JSON.stringify(incomes));
+    } catch (error) {
+        console.error('Failed to save incomes:', error);
+    }
+}
+
 // Load expenses from file initially
 expenses = readExpensesFromFile();
-// Array to store income
-let incomes = [];
+// Load incomes from file initially
+incomes = readIncomesFromFile();
 
-// Route to handle expense, income creation
+// Route to handle expense creation
 app.post('/expenses', (req, res) => {
     const { name, amount } = req.body;
     if (!amount) return res.status(400).send('Amount is required');
@@ -191,13 +210,24 @@ app.post('/expenses', (req, res) => {
     res.status(201).json(expense);
 });
 
+// Route to handle income creation
 app.post('/incomes', (req, res) => {
     const { name, amount } = req.body;
-    if (!req.body.amount) return res.status(400).send('Amount is required');
-    if (!req.body.name) return res.status(400).send('Name is required');
-    const income = { name, amount };
+    if (!amount) return res.status(400).send('Amount is required');
+    if (!name) return res.status(400).send('Name is required');
+
+    const income = {
+        id: uuidv4(), // Generate a unique ID
+        name,
+        amount
+    };
+
     incomes.push(income);
-    res.status(201).json(income)
+
+    // Save the updated incomes to the file
+    saveIncomesToFile();
+
+    res.status(201).json(income);
 });
 
 // Route to handle updating an expense
@@ -226,10 +256,31 @@ app.put('/expenses/:id', (req, res) => {
     res.json(expense);
 });
 
-function writeExpensesToFile(expenses) {
-    const jsonExpenses = JSON.stringify(expenses, null, 2);
-    fs.writeFileSync('expenses.json', jsonExpenses);
-}
+// Route to handle updating an income
+app.put('/incomes/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, amount } = req.body;
+
+    if (!name || !amount) {
+        return res.status(400).send('Name and amount are required');
+    }
+
+    // Find the income object in the array by ID
+    const income = incomes.find((income) => income.id === id);
+
+    if (!income) {
+        return res.status(404).send('Income not found');
+    }
+
+    // Update the income properties
+    income.name = name;
+    income.amount = amount;
+
+    // Save the updated income to the file
+    saveIncomesToFile();
+
+    res.json(income);
+});
 
 app.get('/expenses', (req, res) => {
     res.json(expenses);
