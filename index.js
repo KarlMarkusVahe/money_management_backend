@@ -3,8 +3,9 @@ const app = express();
 const swaggerUi = require('swagger-ui-express');
 const yamlJs = require('yamljs');
 const swaggerDocument = yamlJs.load('./swagger.yaml');
-const {v4: uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const bcrypt = require("bcrypt");
+const fs = require('fs');
 
 require('dotenv').config();
 
@@ -12,6 +13,7 @@ const port = process.env.PORT || 3000;
 
 const accounts = [];
 let sessions = [];
+let expenses = []; // Define the expenses variable
 
 // Serve static files
 app.use(express.static('public'));
@@ -26,8 +28,8 @@ app.use(express.json());
 app.use((err, req, res, next) => {
     console.error(err.stack);
     const status = err.statusCode || 500;
-    res.status(status).send(err.message);
-})
+    res.status(status).send(err.message || 'Internal Server Error');
+});
 
 app.post('/accounts', (req, res) => {
 
@@ -144,18 +146,48 @@ app.delete('/sessions', authorizeRequest, (req, res) => {
 
 })
 
-// Array to store expenses
-let expenses = [];
+// Function to read expenses from file
+function readExpensesFromFile() {
+    try {
+        const fileData = fs.readFileSync('expenses.json', 'utf8');
+        return JSON.parse(fileData);
+    } catch (error) {
+        console.error('Failed to read expenses:', error);
+        return [];
+    }
+}
+
+// Function to save expenses to file
+function saveExpensesToFile() {
+    try {
+        fs.writeFileSync('expenses.json', JSON.stringify(expenses));
+    } catch (error) {
+        console.error('Failed to save expenses:', error);
+    }
+}
+
+// Load expenses from file initially
+expenses = readExpensesFromFile();
 // Array to store income
 let incomes = [];
 
 // Route to handle expense, income creation
 app.post('/expenses', (req, res) => {
     const { name, amount } = req.body;
-    if (!req.body.amount) return res.status(400).send('Amount is required');
-    if (!req.body.name) return res.status(400).send('Name is required');
-    const expense = { name, amount };
+    if (!amount) return res.status(400).send('Amount is required');
+    if (!name) return res.status(400).send('Name is required');
+
+    const expense = {
+        id: uuidv4(), // Generate a unique ID
+        name,
+        amount
+    };
+
     expenses.push(expense);
+
+    // Save the updated expenses to the file
+    saveExpensesToFile();
+
     res.status(201).json(expense);
 });
 
@@ -168,7 +200,37 @@ app.post('/incomes', (req, res) => {
     res.status(201).json(income)
 });
 
-// Route to handle expense and income retrieval
+// Route to handle updating an expense
+app.put('/expenses/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, amount } = req.body;
+
+    if (!name || !amount) {
+        return res.status(400).send('Name and amount are required');
+    }
+
+    // Find the expense object in the array by ID
+    const expense = expenses.find((expense) => expense.id === id);
+
+    if (!expense) {
+        return res.status(404).send('Expense not found');
+    }
+
+    // Update the expense properties
+    expense.name = name;
+    expense.amount = amount;
+
+    // Save the updated expenses to the file
+    saveExpensesToFile();
+
+    res.json(expense);
+});
+
+function writeExpensesToFile(expenses) {
+    const jsonExpenses = JSON.stringify(expenses, null, 2);
+    fs.writeFileSync('expenses.json', jsonExpenses);
+}
+
 app.get('/expenses', (req, res) => {
     res.json(expenses);
 });

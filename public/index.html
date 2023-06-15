@@ -50,6 +50,9 @@
         <ul>
             <li v-for="expense in expenses" :key="expense.id">
                 {{ expense.name }}: ${{ expense.amount }}
+                <button type="button" class="btn btn-secondary btn-sm" @click="showModal('editExpenseModal', expense)">
+                    Edit
+                </button>
             </li>
         </ul>
 
@@ -106,6 +109,37 @@
         </div>
     </div>
 
+    <!-- Edit Expense Modal -->
+    <div class="modal fade" id="editExpenseModal" tabindex="-1" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editExpenseModalLabel">Edit Expense</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 row">
+                        <label for="editExpenseName" class="col-sm-2 col-form-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="editExpenseName" v-model="editExpenseName">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="editExpenseAmount" class="col-sm-2 col-form-label">Amount</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="editExpenseAmount" v-model="editExpenseAmount">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="updateExpense(editingExpense)">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Sign In Modal -->
     <div class="modal fade" id="signInModal" tabindex="-1" aria-labelledby="signInModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -158,6 +192,9 @@
                 incomeName: '',
                 incomeAmount: 0,
                 incomes: [],
+                editExpenseName: '',
+                editExpenseAmount: 0,
+                editingExpense: null,
             };
         },
         mounted() {
@@ -215,9 +252,15 @@
                         this.incomes = [];
                     });
             },
-            showModal(modalId) {
+            showModal(modalId, expense) {
                 this.modalHandler = new bootstrap.Modal(document.getElementById(modalId));
                 this.modalHandler.show();
+
+                if (expense) {
+                    this.editingExpense = expense;
+                    this.editExpenseName = expense.name;
+                    this.editExpenseAmount = expense.amount;
+                }
             },
             addExpense() {
                 this.send('POST', '/expenses', {
@@ -252,9 +295,30 @@
                     .then(response => {
                         this.incomes = response;
                     })
+            },
+            updateExpense(expense) {
+                this.send('PUT', `/expenses/${expense.id}`, {
+                    name: this.editExpenseName,
+                    amount: this.editExpenseAmount
+                })
+                    .then(() => {
+                        // Update the expense locally
+                        const index = this.expenses.findIndex(item => item.id === expense.id);
+                        if (index !== -1) {
+                            this.expenses[index].name = this.editExpenseName;
+                            this.expenses[index].amount = this.editExpenseAmount;
+                        }
+                        // Reset the form fields and close the modal
+                        this.editExpenseName = '';
+                        this.editExpenseAmount = 0;
+                        this.modalHandler.hide();
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.response.data.message}`);
+                    });
             }
         },
     }).mount('#app');
 </script>
 </body>
-</html> //test
+</html>
