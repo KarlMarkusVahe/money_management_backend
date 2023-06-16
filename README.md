@@ -32,6 +32,6 @@ Once you have installed Node.js, follow these steps:
 - [NPM](https://www.npmjs.com/) for the package manager.
 - [Dotenv](https://www.npmjs.com/package/dotenv) for the environment variables.
 - [Bcrypt](https://www.npmjs.com/package/bcrypt) for the password hashing.
--[Swagger-UI-Express](https://www.npmjs.com/package/swagger-ui-express) for documentation.
--[YAML.js](https://www.npmjs.com/package/yamljs) for parsing and serializing YAML Data.
--[UUID](https://www.npmjs.com/package/uuid) for generating unique identifiers.
+- [Swagger-UI-Express](https://www.npmjs.com/package/swagger-ui-express) for documentation.
+- [YAML.js](https://www.npmjs.com/package/yamljs) for parsing and serializing YAML Data.
+- [UUID](https://www.npmjs.com/package/uuid) for generating unique identifiers.
