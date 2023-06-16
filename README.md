@@ -21,7 +21,7 @@ Once you have installed Node.js, follow these steps:
 1. Fork and clone this repository to your local machine.
 1. Open the root directory of the project in terminal. 
 1. Run `npm install` to install all the necessary dependencies for the project.
-1. Run `npm start` to start the server on port 3000 (or whatever port you have specified in the .env file).
+1. Run `npm start` to start the server on port 3000.
 1. Navigate to [http://localhost:3000/docs](http://localhost:3000/docs) to see the API documentation.
 
 
