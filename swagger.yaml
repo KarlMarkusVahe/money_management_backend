@@ -112,12 +112,11 @@ paths:
     get:
       tags:
         - /expenses
-      responses: {}
       security:
         -
           Bearer: []
       summary: Show expenses
-      description: Show a list of expenses
+      description: Show a list of `Expenses`
     put:
       requestBody:
         description: To update an `expense`
@@ -143,12 +142,17 @@ paths:
                     amount: ''
           description: Name and Amount are required
         '404':
+          content:
+            text/xml:
+              examples:
+                Expense not found:
+                  value: Expense not found
           description: Expense not found
       security:
         -
           Bearer: []
       summary: Update expenses
-      description: Update an expense
+      description: Updates `Expenses` of which ID is specified in the Authorization header
     post:
       requestBody:
         description: A new `Expenses` to be created.
@@ -185,6 +189,24 @@ paths:
       operationId: createExpenses
       summary: Create an expense
       description: Creates a new instance of a `Expenses`.
+    delete:
+      tags:
+        - /expenses
+      responses:
+        '204':
+          description: Expense deleted
+        '404':
+          content:
+            text/xml:
+              examples:
+                Expense not found:
+                  value: Expense not found
+          description: Expense not found
+      security:
+        -
+          Bearer: []
+      summary: Delete an expense
+      description: Deletes `Expenses` of which ID is specified in the Authorization header
   /incomes:
     summary: Path used to manage list of incomes
     description: >-
@@ -198,10 +220,10 @@ paths:
         -
           Bearer: []
       summary: Show incomes
-      description: Show a list of incomes
+      description: Show a list of `Incomes`
     put:
       requestBody:
-        description: To update an `income`
+        description: To update an `Incomes`
         content:
           application/json:
             schema:
@@ -226,14 +248,20 @@ paths:
                     amount: ''
           description: Name and amount are required
         '404':
+          content:
+            text/xml:
+              examples:
+                Income not found:
+                  value: Income not found
           description: Income not found
       security:
         -
           Bearer: []
       summary: Update income
-      description: Update income
+      description: Updates `Incomes` of which ID is specified in the Authorization header
     post:
       requestBody:
+        description: A new `Incomes` to be created.
         content:
           application/json:
             schema:
@@ -267,6 +295,24 @@ paths:
       operationId: createIncome
       summary: Create an income
       description: Creates a new instance of a `Incomes`.
+    delete:
+      tags:
+        - /incomes
+      responses:
+        '204':
+          description: Income deleted
+        '404':
+          content:
+            text/xml:
+              examples:
+                Income not found:
+                  value: Income not found
+          description: Income not found
+      security:
+        -
+          Bearer: []
+      summary: Delete income
+      description: Deletes `Incomes` of which ID is specified in the Authorization header
 components:
   schemas:
     Account:
