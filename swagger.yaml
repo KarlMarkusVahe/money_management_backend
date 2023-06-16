@@ -112,14 +112,43 @@ paths:
     get:
       tags:
         - /expenses
-      responses:
-        '200':
-          description: Response Succesful
+      responses: {}
       security:
         -
           Bearer: []
       summary: Show expenses
       description: Show a list of expenses
+    put:
+      requestBody:
+        description: To update an `expense`
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Expenses'
+        required: true
+      tags:
+        - /expenses
+      responses:
+        '400':
+          content:
+            text/xml:
+              examples:
+                Name is missing:
+                  value:
+                    name: ''
+                    amount: '1000'
+                Amount is missing:
+                  value:
+                    name: train
+                    amount: ''
+          description: Name and Amount are required
+        '404':
+          description: Expense not found
+      security:
+        -
+          Bearer: []
+      summary: Update expenses
+      description: Update an expense
     post:
       requestBody:
         description: A new `Expenses` to be created.
@@ -164,14 +193,45 @@ paths:
     get:
       tags:
         - /incomes
-      responses:
-        '200':
-          description: Response Succesful
+      responses: {}
       security:
         -
           Bearer: []
       summary: Show incomes
       description: Show a list of incomes
+    put:
+      requestBody:
+        description: To update an `income`
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Incomes'
+        required: true
+      tags:
+        - /incomes
+      responses:
+        '400':
+          content:
+            text/xml:
+              examples:
+                Name is missing:
+                  value: |-
+                    {
+                        "name":""
+                        "amount":"1000"
+                    }
+                Amount is missing:
+                  value:
+                    name: job
+                    amount: ''
+          description: Name and amount are required
+        '404':
+          description: Income not found
+      security:
+        -
+          Bearer: []
+      summary: Update income
+      description: Update income
     post:
       requestBody:
         content:
